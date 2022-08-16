@@ -365,7 +365,6 @@ class RPSGame
   include Displayable
 
   attr_reader :human, :computer, :score
-  
 
   def initialize
     display_welcome
