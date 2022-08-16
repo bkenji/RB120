@@ -28,9 +28,9 @@ module Displayable
 
   def display_challenge
     system("clear")
-    output("Hello, #{human.name}."\
+    output("It's time, #{human.name}."\
      " Your opponent is #{computer.name}, the #{computer.title}.")
-    output("The first to win #{Score::MAX_SCORE} games is the grand winner."\
+    output("The first to win #{score.max_score} games is the grand winner."\
     " Let's get started.")
     puts
   end
@@ -121,6 +121,14 @@ class Player
   def winner?(other_player)
     move > other_player.move
   end
+
+  def reset_history
+    self.move_history = []
+  end
+
+  private
+
+  attr_writer :move_history
 end
 
 class Human < Player
@@ -132,6 +140,7 @@ class Human < Player
       break unless name.empty?
       output("Name cannot be empty.")
     end
+    puts
     self.name = name
   end
 
@@ -146,10 +155,6 @@ class Human < Player
     self.move = Move.new(choice)
     move_history << move.value
   end
-
-  private
-
-  attr_writer :move_history
 end
 
 class Computer < Player
@@ -318,26 +323,41 @@ class Move
 end
 
 class Score
-  MAX_SCORE = 3
-  attr_accessor :human, :computer, :winner
+  include Displayable
 
-  def initialize(human: 0, computer: 0)
+  attr_accessor :human, :computer, :winner, :max_score
+
+  def initialize(human: 0, computer: 0, max_score: 1)
     @human = human
     @computer = computer
+    @max_score = max_score
+  end
+
+  def number_of_rounds(human)
+    answer = nil
+    output("Thanks, #{human.name}.")
+    loop do
+      output("How many rounds do you want the game to last?")
+      answer = gets.chomp
+      break if answer == answer.to_i.to_s && answer.to_i.positive?
+      output("Invalid answer. Please type a numeric character greater than 0.")
+    end
+    self.max_score = answer.to_i
+    output("Thank you. Loading......")
   end
 
   def update(human, computer)
     if human.winner?(computer)
-      self.human += 1 if self.human < MAX_SCORE
+      self.human += 1 if self.human < max_score
     elsif computer.winner?(human)
-      self.computer += 1 if self.computer < MAX_SCORE
+      self.computer += 1 if self.computer < max_score
     else
       max?
     end
   end
 
   def max?
-    human == MAX_SCORE || computer == MAX_SCORE
+    human == max_score || computer == max_score
   end
 
   def reset
@@ -361,6 +381,7 @@ class RPSGame
 
   def play
     loop do
+      score.number_of_rounds(human)
       display_challenge
       game_loop
       break unless play_again?
@@ -397,6 +418,8 @@ class RPSGame
     if score.max?
       display_grand_winner
       score.reset
+      human.reset_history
+      computer.reset_history
     else
       false
     end
@@ -411,7 +434,12 @@ class RPSGame
       break if answer == "yes" || answer == "no"
       output("Answer invalid. Please type 'yes' or 'no'.")
     end
-    answer == "yes"
+    reset_game_environment if answer == "yes"
+  end
+
+  def reset_game_environment
+    output("Resetting history.....")
+    system("clear")
   end
 end
 
