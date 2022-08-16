@@ -7,7 +7,7 @@ module Displayable
         print chr
       else
         print chr
-        sleep(0.05)
+        sleep(0.03)
       end
     end
     puts
