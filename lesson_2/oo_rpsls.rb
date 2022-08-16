@@ -136,7 +136,7 @@ class Human < Player
     name = nil
     loop do
       output("Please type your name:")
-      name = gets.chomp
+      name = gets.chomp.strip
       break unless name.empty?
       output("Name cannot be empty.")
     end
