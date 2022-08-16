@@ -208,10 +208,6 @@ module Engines
       @personality = personality(opponent)
     end
 
-    def opponent
-      super
-    end
-
     def personality(_opponent)
       Move::MOVES.sample
     end
@@ -240,7 +236,6 @@ module Engines
       @opponent = opponent
       @name = "Deckard"
       @title = "replicant"
-
       @personality = personality(opponent)
     end
 
@@ -369,8 +364,8 @@ end
 class RPSGame
   include Displayable
 
-  attr_accessor :human, :computer, :score
-  attr_reader :display
+  attr_reader :human, :computer, :score
+  
 
   def initialize
     display_welcome
