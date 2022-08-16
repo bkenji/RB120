@@ -328,19 +328,6 @@ class Score
     @max_score = max_score
   end
 
-  def number_of_rounds(human)
-    answer = nil
-    output("Thanks, #{human.name}.")
-    loop do
-      output("How many rounds do you want the game to last?")
-      answer = gets.chomp
-      break if answer == answer.to_i.to_s && answer.to_i.positive?
-      output("Invalid answer. Please type a numeric character greater than 0.")
-    end
-    self.max_score = answer.to_i
-    output("Thank you. Loading......")
-  end
-
   def update(human, computer)
     if human.winner?(computer)
       self.human += 1 if self.human < max_score
@@ -373,9 +360,22 @@ class RPSGame
     @score = Score.new
   end
 
+  def number_of_rounds
+    answer = nil
+    output("Thanks, #{human.name}.")
+    loop do
+      output("How many rounds do you want the game to last?")
+      answer = gets.chomp
+      break if answer == answer.to_i.to_s && answer.to_i.positive?
+      output("Invalid answer. Please type a numeric character greater than 0.")
+    end
+    score.max_score = answer.to_i
+    output("Thank you. Loading......")
+  end
+
   def play
     loop do
-      score.number_of_rounds(human)
+      number_of_rounds
       display_challenge
       game_loop
       break unless play_again?
