@@ -324,7 +324,7 @@ end
 class Score
   include Displayable
 
-  attr_accessor :human, :computer, :winner, :max_score
+  attr_accessor :human, :computer, :max_score
 
   def initialize(human: 0, computer: 0, max_score: 1)
     @human = human
