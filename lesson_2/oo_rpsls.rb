@@ -8,19 +8,6 @@ module Displayable
     sleep(1)
   end
 
-  def animation(message)
-    chars = message.to_s.chars
-    chars.each_with_index do |chr, idx|
-      if chars[idx - 1] == "." || chars[idx - 1] == "|"
-        sleep(0.5)
-        print chr
-      else
-        print chr
-        sleep(0.05)
-      end
-    end
-  end
-
   def display_welcome
     output(MSG["welcome"])
     puts
@@ -64,16 +51,6 @@ module Displayable
     end
   end
 
-  def display_human_win
-    output(MSG["#{human.move}_#{computer.move}"])
-    output("And this round's winner is #{human.name}!")
-  end
-
-  def display_computer_win
-    output(MSG["#{computer.move}_#{human.move}"])
-    output("And this round's winner is #{computer.name}!")
-  end
-
   def display_score
     puts
     output("#{human.name}: #{score.human} |"\
@@ -87,6 +64,31 @@ module Displayable
     else
       computer_win_message
     end
+  end
+
+  private
+
+  def animation(message)
+    chars = message.to_s.chars
+    chars.each_with_index do |chr, idx|
+      if chars[idx - 1] == "." || chars[idx - 1] == "|"
+        sleep(0.5)
+        print chr
+      else
+        print chr
+        sleep(0.05)
+      end
+    end
+  end
+
+  def display_human_win
+    output(MSG["#{human.move}_#{computer.move}"])
+    output("And this round's winner is #{human.name}!")
+  end
+
+  def display_computer_win
+    output(MSG["#{computer.move}_#{human.move}"])
+    output("And this round's winner is #{computer.name}!")
   end
 
   def human_win_message
