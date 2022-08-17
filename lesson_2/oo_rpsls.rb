@@ -438,7 +438,7 @@ class RPSGame
   end
 
   def reset_game_environment
-    output("Resetting history.....")
+    output("Resetting history......")
     system("clear")
   end
 end
