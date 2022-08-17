@@ -364,6 +364,18 @@ class RPSGame
     @score = Score.new
   end
 
+  def play
+    loop do
+      number_of_rounds
+      display_challenge
+      game_loop
+      break unless play_again?
+    end
+    display_goodbye
+  end
+
+  private
+
   def number_of_rounds
     answer = nil
     output("Thanks, #{human.name}.")
@@ -377,16 +389,6 @@ class RPSGame
     output("Thank you. Loading......")
   end
 
-  def play
-    loop do
-      number_of_rounds
-      display_challenge
-      game_loop
-      break unless play_again?
-    end
-    display_goodbye
-  end
-
   def play_again?
     answer = nil
     loop do
@@ -398,8 +400,6 @@ class RPSGame
     end
     reset_game_environment if answer == "yes"
   end
-
-  private
 
   def game_loop
     loop do
