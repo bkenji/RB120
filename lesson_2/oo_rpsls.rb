@@ -281,10 +281,6 @@ class Move
     @value = value
   end
 
-  def to_s
-    value
-  end
-
   def >(other_move)
     rock_wins(other_move) ||
       paper_wins(other_move) ||
@@ -294,6 +290,10 @@ class Move
   end
 
   private
+
+  def to_s
+    value
+  end
 
   def rock_wins(other_move)
     (value == "Rock" && (other_move.value == "Scissors" ||
