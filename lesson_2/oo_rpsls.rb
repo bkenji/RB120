@@ -293,6 +293,8 @@ class Move
       spock_wins(other_move)
   end
 
+  private
+
   def rock_wins(other_move)
     (value == "Rock" && (other_move.value == "Scissors" ||
       other_move.value == "Lizard"))
