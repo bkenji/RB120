@@ -385,6 +385,20 @@ class RPSGame
     display_goodbye
   end
 
+  def play_again?
+    answer = nil
+    loop do
+      output("#{human.name}, would you like to play again"\
+      " against #{computer.name}? (yes/no)")
+      answer = gets.downcase.chomp
+      break if answer == "yes" || answer == "no"
+      output("Answer invalid. Please type 'yes' or 'no'.")
+    end
+    reset_game_environment if answer == "yes"
+  end
+
+  private
+
   def game_loop
     loop do
       single_round
@@ -419,18 +433,6 @@ class RPSGame
     else
       false
     end
-  end
-
-  def play_again?
-    answer = nil
-    loop do
-      output("#{human.name}, would you like to play again"\
-      " against #{computer.name}? (yes/no)")
-      answer = gets.downcase.chomp
-      break if answer == "yes" || answer == "no"
-      output("Answer invalid. Please type 'yes' or 'no'.")
-    end
-    reset_game_environment if answer == "yes"
   end
 
   def reset_game_environment
