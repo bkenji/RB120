@@ -94,7 +94,7 @@ module Displayable
   end
 end
 
-module AiEngines
+module AiEngine
   attr_accessor :human, :computer
 
   def move(board)
@@ -256,7 +256,7 @@ end
 class Computer < Player
   attr_accessor :threat, :safety
 
-  include AiEngines
+  include AiEngine
 
   def initialize
     super
@@ -289,11 +289,10 @@ end
 
 class Board
   INITIAL_STATE = " "
-  attr_reader :grid
+
   attr_accessor :squares
 
-  def initialize(grid=3)
-    @grid = grid
+  def initialize
     @squares = initialize_squares
   end
 
@@ -318,12 +317,6 @@ class Board
   def reset
     self.squares = initialize_squares
   end
-
-  # def setup(grid_size=3)
-  #   self.grid = grid_size
-  #    grid.times{build_row}
-  #   h_bar
-  # end
 
   private
 
@@ -356,24 +349,6 @@ class Board
     puts "|       ||       ||       |"
     puts "+:::::::++:::::::++:::::::+"
   end
-
-  # def build_row(idx=9)
-  #  h_bar
-  #  interval(grid, idx)
-  # end
-
-  # def h_bar
-  #  p ("+:::::::+" * grid)
-  # end
-
-  # def interval(grid, idx)
-  #    space = "|       |"
-  #    content =  "|   #{"n"}   |"
-  #    space_row = space * grid
-  #   p space_row
-  #   p content * grid
-  #   p space_row
-  # end
 end
 
 class Square
@@ -388,9 +363,8 @@ class Square
   end
 end
 
-class TTTGame # Orchestrating Engine
+class TTTGame
   include Displayable
-  include AiEngines
 
   MARKERS = ["X", "O"]
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
@@ -426,9 +400,8 @@ class TTTGame # Orchestrating Engine
   end
 
   def initialize_board
-    # add option to choose size of board
     @board = Board.new
-    board.display # accepts optional integer argument for varying sizes
+    board.display
   end
 
   def initialize_players
