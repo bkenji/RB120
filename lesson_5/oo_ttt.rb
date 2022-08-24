@@ -114,6 +114,8 @@ module AiEngine
     end
   end
 
+  private
+
   def defensive_threat?(board, safety)
     human_moves = board.squares.select do |_, sq|
       sq.value == opponent_marker
@@ -180,17 +182,6 @@ module AiEngine
     board.display
     sleep(0.5)
   end
-
-  # def move(board)
-  #   square = board.available.sample
-  #   moves << square
-  #   board.update(square, marker)
-  #   puts " #{name} analyzing board..."
-  #   sleep(1)
-  #   system("clear")
-  #   board.display
-  #   sleep(0.5)
-  # end
 end
 
 class Player
@@ -247,15 +238,6 @@ class Human < Player
     output("Thank you, #{name}. ")
     name
   end
-
-  def choose_square(square)
-    loop do
-      puts "Choose a square: #{display_squares(board)}"
-      square = gets.chomp.to_i
-      break if board.available.include?(square)
-      invalid_move(board)
-    end
-  end
 end
 
 class Computer < Player
@@ -265,8 +247,6 @@ class Computer < Player
 
   def initialize
     super
-    @ai_defense = nil
-    @ai_attack = nil
     @opponent_marker = opponent_marker
     @threat = nil
     @safety = [nil, nil, nil]
@@ -371,8 +351,6 @@ class TTTGame
 
   attr_reader :board, :computer, :human
 
-  PLAYERS = [@human, @computer]
-
   MARKERS = ["X", "O"]
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
@@ -399,10 +377,6 @@ class TTTGame
   private
 
   attr_accessor :current_player, :max_score, :first_move
-
-  def display_goodbye
-    output("Thanks for playing. Goodbye!")
-  end
 
   def initialize_board
     @board = Board.new
