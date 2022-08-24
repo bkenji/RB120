@@ -320,8 +320,6 @@ class Board
 
   private
 
-  attr_writer :grid
-
   def initialize_squares
     new_board = {}
     (1..9).each { |key| new_board[key] = Square.new(INITIAL_STATE) }
