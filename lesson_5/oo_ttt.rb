@@ -41,8 +41,9 @@ module Displayable
     board.display
   end
 
-  def display_goodbye
-    output("Thanks for playing. Goodbye!")
+  def invalid_answer_play_again
+    puts "Answer invalid. Please type 'yes' or 'no'."
+    sleep(1)
   end
 
   def display_winner
@@ -61,6 +62,10 @@ module Displayable
     else
       computer_win_message
     end
+  end
+
+  def display_goodbye
+    output("Thanks for playing. Goodbye!")
   end
 
   private
@@ -103,17 +108,17 @@ module AiEngine
     elsif defensive_threat?(board, safety)
       defense(board)
     elsif board.available.include?(5)
-      initial_move(board)
+      center_move(board)
     else
       random_move(board)
     end
   end
 
   def defensive_threat?(board, safety)
-    human_sqrs = board.squares.select do |_, sq|
+    human_moves = board.squares.select do |_, sq|
       sq.value == opponent_marker
     end.keys
-    threat_analysis(board, safety, human_sqrs)
+    threat_analysis(board, safety, human_moves)
     threat
   end
 
@@ -131,7 +136,7 @@ module AiEngine
     end
   end
 
-  def initial_move(board)
+  def center_move(board)
     moves << 5
     board.update(5, marker)
     output("Calculating optimal square...")
@@ -364,12 +369,14 @@ end
 class TTTGame
   include Displayable
 
+  attr_reader :board, :computer, :human
+
+  PLAYERS = [@human, @computer]
+
   MARKERS = ["X", "O"]
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
                   [[1, 5, 9], [3, 5, 7]]              # diagonals
-
-  attr_reader :board, :computer, :human
 
   def initialize
     system("clear")
@@ -408,14 +415,15 @@ class TTTGame
   end
 
   def who_plays_first
-    players = [computer, human]
     case first_to_move_input
     when "computer", "c" then self.current_player = computer
     when "human", "h" then self.current_player = human
-    else self.current_player = players.sample
+    else
+      output("Randomizing player...")
+      self.current_player = [human, computer].sample
     end
     self.first_move = current_player
-    assign_markers(players)
+    assign_markers([human, computer])
     display_plays_first
   end
 
@@ -527,7 +535,7 @@ class TTTGame
       puts "Would you like to play again? (yes/no)"
       answer = gets.downcase.chomp
       break if (yes + no).include?(answer)
-      puts "Answer invalid. Please type 'yes' or 'no'."
+      invalid_answer_play_again
     end
     reset_game_environment if yes.include?(answer)
   end
