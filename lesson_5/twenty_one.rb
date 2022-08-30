@@ -73,8 +73,12 @@ end
 
 class CardDeck
   INITIAL_DECK = [# 52 card objects]
+  
   def initialize
     @cards = INITIAL_DECK
+  end
+
+  def deal
   end
 end
 
@@ -88,25 +92,53 @@ end
 
 class TwentyOneGame
   def initialize
-    @cards = CardDeck.new
+    @deck = CardDeck.new
     @player = Player.new
     @dealer = Dealer.new
   end
 
   def play
     welcome
-    deal_cards
-    player_turn
-    - player_hit? (loop)
-    - bust? or stay? (break loop)
-    bust? (dealer wins -> display_winner)
-    dealer_turn
-    - dealer_hit? (up to score >= 17)
-    - bust? or stay? (break loop)
-    - bust? (player wins -> display_winner)
-    - compare_scores
-    - display_winner
+    deck.deal
+    loop do
+      player_turn
+      dealer_turn
+    end
+    compare_scores
+    display_winner
     goodbye
+  end
+
+  private
+
+  def player_turn
+    loop do
+      player_hit?
+      break if bust? || stay?
+    end
+    bust? # dealer wins -> display_winner
+    stay? # dealer_turn
+  end
+
+  def dealer_turn
+    loop do
+      dealer_hit? # up to score >= 17
+      break if bust? || stay? 
+    end
+    bust? # player wins -> display_winner
+    stay? # player_turn
+  end
+
+  def player_hit?
+  end
+
+  def dealer_hit?
+  end
+
+  def bust?
+  end
+
+  def stay?
   end
 end
 
