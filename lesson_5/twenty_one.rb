@@ -1,3 +1,5 @@
+require "pry"
+
 # Twenty-One is a card game consisting of a dealer and a player, where participants try to get as close to 21 as possible, without going over it. Whoever comes closest to 21 without going over it is the winner.
 
 # Module: Displayable
@@ -37,19 +39,28 @@
 
 
 class Player
+  attr_reader :hand, :total
+
   def initialize
     @name = set_name
     @hand = []
-    @score = 0
+    @total = total
   end 
 
-  def hit
-  end
-
-  def stay
+  def hit(deck)
+    hand << deck.cards.shift
+    @total = total
   end
 
   def bust?
+    # if total > 21, loses game
+  end
+
+  def total
+    total = hand.map do |card|
+                card.value
+              end.sum
+    @total = total
   end
 
   private
@@ -64,35 +75,93 @@ class Dealer < Player
   end
 
   def hit
+    #special hit rules for Dealer
   end
 
-  def stay
-  end
 end
 
 class CardDeck
-  INITIAL_DECK = # [52 card objects]
+  attr_reader :cards
 
   def initialize
-    @cards = INITIAL_DECK
+    @cards = initialize_card_deck
   end
 
-  def deal
+  def deal(player, dealer)
+    shuffle
+    (player.hand << cards.shift(2)).flatten!
+    (dealer.hand << cards.shift(2)).flatten!
+  end
+
+  private 
+
+  def shuffle
+    cards.shuffle!
+  end
+
+  def initialize_card_deck
+    Card::SUITS.each_with_object([]) do |suit, cards|
+      Card::RANKS.each do |rank|
+        cards << Card.new(suit, rank)
+      end
+    end
   end
 end
 
 class Card
-  def initialize
-    @rank
-    @suit
-    @value
+
+  SUITS = [:diamonds, :spades, :hearts, :clubs]
+  RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"] 
+
+  def initialize(suit, rank)
+    @suit = suit
+    @rank = rank
+    @value = value
   end
+
+  def rank
+    case @rank
+    when 'J' then 'Jack'
+    when 'Q' then 'Queen'
+    when 'K' then 'King'
+    when 'A' then 'Ace'
+    else
+      @rank
+    end
+  end
+
+  def suit
+    case @suit
+    when :diamonds then "\e[31m\u2666\e[0m"
+    when :spades then "\u2660"
+    when :hearts then "\e[31m\u2665\e[0m"
+    when :clubs then "\u2663"
+    end
+  end
+
+  def value
+    case @rank
+    when "J", "Q", "K" then 10
+    when "A" then calculate_ace
+    else
+      rank.to_i
+    end
+  end
+
+  def calculate_ace
+    11
+  end
+
+  def to_s
+    "#{suit} #{rank} of #{@suit.capitalize} #{suit} with a value of #{value}"
+  end
+
+
 end
 
 class TwentyOneGame
   attr_accessor :deck
   attr_reader :player, :dealer
-
 
   def initialize
     @deck = CardDeck.new
@@ -118,12 +187,23 @@ class TwentyOneGame
 
   def main_game_loop
     loop do
-      deck.deal
+      deck.deal(player, dealer)
+      show_cards
       single_round_loop
-      compare_scores
-      display_winner
-      play_again?
+      # compare_totals
+      # display_winner
+      # play_again?
     end
+  end
+
+  def show_cards
+    puts "Player's hand:"
+    puts player.hand
+    puts "Player's total: #{player.total}"
+    puts
+    puts "Dealer's hand:"
+    puts dealer.hand
+    puts "Dealer's total: #{dealer.total}"
   end
 
   def single_round_loop
@@ -131,43 +211,62 @@ class TwentyOneGame
       player_turn
       dealer_turn
       break
-
     end
   end
 
   def player_turn
+    hit, stay = ["hit", "h"], ["stay", "s"] 
+    puts "Player's turn..."
+    sleep(2)
     loop do
-      player_hit?
-      break
-      break if bust? || stay?
+      puts "Do you want to (h)it or (s)tay?"
+      answer = hit_or_stay?(hit, stay)
+      hit.include?(answer) ? player_hit : break
+      break if player.bust?
     end
-    bust? # dealer wins -> display_winner
-    stay? # dealer_turn
+  end
+
+  def hit_or_stay?(hit, stay)
+    answer = nil
+    loop do 
+      answer = gets.chomp.downcase.strip
+      break if  (hit + stay).include?(answer)
+      puts "Invalid answer. Try again."
+    end
+    answer
   end
 
   def dealer_turn
+    puts "Dealer's turn now..."
+    sleep(2)
     loop do
       break
-      dealer_hit? # up to score >= 17
+      dealer_hit? # up to total >= 17
       break if bust? || stay? 
     end
     bust? # player wins -> display_winner
     stay? # player_turn
   end
 
-  def player_hit?
+  def player_hit
+    player.hit(deck)
+    p "Player HIT"
+    sleep(2)
+    p player.hand
+    p player.total
   end
 
-  def dealer_hit?
+  def dealer_hit
   end
 
   def bust?
   end
 
   def stay?
+    p "Stay!!!!!!"
   end
 
-  def compare_scores
+  def compare_totals
   end
 
   def display_winner
@@ -177,4 +276,16 @@ class TwentyOneGame
   end
 end
 
-TwentyOneGame.new.play
+ TwentyOneGame.new.play
+
+
+
+
+
+
+
+
+
+
+
+
