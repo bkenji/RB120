@@ -109,3 +109,5 @@ class TwentyOneGame
     goodbye
   end
 end
+
+TwentyOneGame.new.play
