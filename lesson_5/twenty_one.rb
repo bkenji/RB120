@@ -8,7 +8,7 @@
 # Class: TwentyOneGame 
 # Responsibility: Game Orchestration
 # States: 
-# Behaviors: Win?, both_stay?, tie?, start
+# Behaviors: Win?, both_stay?, tie?, play
 # Collaborators: Player, Dealer, CardDeck
 
 # Class: Player
@@ -94,5 +94,18 @@ class TwentyOneGame
   end
 
   def play
+    welcome
+    deal_cards
+    player_turn
+    - hit? (loop)
+    - bust? or stay? (break loop)
+    bust? (dealer wins -> display_winner)
+    dealer_turn
+    - hit (up to score >= 17)
+    - bust or stay? (break loop)
+    - bust? (player wins -> display_winner)
+    - compare_scores
+    - display_winner
+    goodbye
   end
 end
