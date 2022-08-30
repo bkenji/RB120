@@ -9,8 +9,8 @@ require "pry"
 
 # Class: TwentyOneGame 
 # Responsibility: Game Orchestration
-# States: 
-# Behaviors: Win?, both_stay?, tie?, play
+# States: deck, player, dealer
+# Behaviors: win? show_cards, player_turn, dealer_turn
 # Collaborators: Player, Dealer, CardDeck
 
 # Class: Player
@@ -57,9 +57,7 @@ class Player
   end
 
   def total
-    total = hand.map do |card|
-                card.value
-              end.sum
+    total = hand.map(&:value).sum
     @total = total
   end
 
@@ -226,16 +224,6 @@ class TwentyOneGame
     end
   end
 
-  def hit_or_stay?(hit, stay)
-    answer = nil
-    loop do 
-      answer = gets.chomp.downcase.strip
-      break if  (hit + stay).include?(answer)
-      puts "Invalid answer. Try again."
-    end
-    answer
-  end
-
   def dealer_turn
     puts "Dealer's turn now..."
     sleep(2)
@@ -247,6 +235,17 @@ class TwentyOneGame
     bust? # player wins -> display_winner
     stay? # player_turn
   end
+
+  def hit_or_stay?(hit, stay)
+    answer = nil
+    loop do 
+      answer = gets.chomp.downcase.strip
+      break if  (hit + stay).include?(answer)
+      puts "Invalid answer. Try again."
+    end
+    answer
+  end
+
 
   def player_hit
     player.hit(deck)
