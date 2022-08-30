@@ -69,11 +69,13 @@ end
 
 class Dealer < Player
 
-  def set_name
-  end
-
   def hit
     #special hit rules for Dealer
+  end
+
+  private
+
+  def set_name
   end
 
 end
@@ -146,15 +148,13 @@ class Card
     end
   end
 
-  def calculate_ace
-    11
-  end
-
   def to_s
     "#{suit} #{rank} of #{@suit.capitalize} #{suit} with a value of #{value}"
   end
 
-
+  def calculate_ace
+    11 # placeholder
+  end
 end
 
 class TwentyOneGame
@@ -245,7 +245,6 @@ class TwentyOneGame
     end
     answer
   end
-
 
   def player_hit
     player.hit(deck)
