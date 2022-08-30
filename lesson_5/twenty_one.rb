@@ -68,12 +68,11 @@ class Dealer < Player
 
   def stay
   end
-
 end
 
 class CardDeck
-  INITIAL_DECK = [# 52 card objects]
-  
+  INITIAL_DECK = # [52 card objects]
+
   def initialize
     @cards = INITIAL_DECK
   end
@@ -91,6 +90,10 @@ class Card
 end
 
 class TwentyOneGame
+  attr_accessor :deck
+  attr_reader :player, :dealer
+
+
   def initialize
     @deck = CardDeck.new
     @player = Player.new
@@ -99,21 +102,43 @@ class TwentyOneGame
 
   def play
     welcome
-    deck.deal
-    loop do
-      player_turn
-      dealer_turn
-    end
-    compare_scores
-    display_winner
+    main_game_loop
     goodbye
   end
 
   private
 
+  def welcome
+    puts "Welcome to Twenty-One!"
+  end
+
+  def goodbye
+    puts "Thank you for playing Twenty-One. Goodbye!"
+  end
+
+  def main_game_loop
+    loop do
+      deck.deal
+      single_round_loop
+      compare_scores
+      display_winner
+      play_again?
+    end
+  end
+
+  def single_round_loop
+    loop do
+      player_turn
+      dealer_turn
+      break
+
+    end
+  end
+
   def player_turn
     loop do
       player_hit?
+      break
       break if bust? || stay?
     end
     bust? # dealer wins -> display_winner
@@ -122,6 +147,7 @@ class TwentyOneGame
 
   def dealer_turn
     loop do
+      break
       dealer_hit? # up to score >= 17
       break if bust? || stay? 
     end
@@ -139,6 +165,15 @@ class TwentyOneGame
   end
 
   def stay?
+  end
+
+  def compare_scores
+  end
+
+  def display_winner
+  end
+
+  def play_again?
   end
 end
 
