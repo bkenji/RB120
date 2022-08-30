@@ -97,12 +97,12 @@ class TwentyOneGame
     welcome
     deal_cards
     player_turn
-    - hit? (loop)
+    - player_hit? (loop)
     - bust? or stay? (break loop)
     bust? (dealer wins -> display_winner)
     dealer_turn
-    - hit (up to score >= 17)
-    - bust or stay? (break loop)
+    - dealer_hit? (up to score >= 17)
+    - bust? or stay? (break loop)
     - bust? (player wins -> display_winner)
     - compare_scores
     - display_winner
