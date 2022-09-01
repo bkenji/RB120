@@ -314,7 +314,7 @@ class Card
   def value
     case @rank
     when "J", "Q", "K" then 10
-    when "A" then calculate_ace
+    when "A" then 11
     else
       rank.to_i
     end
@@ -326,10 +326,6 @@ class Card
 
   def ace?
     rank == "Ace"
-  end
-
-  def calculate_ace
-    11
   end
 end
 
