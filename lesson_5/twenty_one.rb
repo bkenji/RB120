@@ -94,13 +94,8 @@ module Displayable
     end
   end
 
-  def invalid_answer
-    puts "Invalid answer. Try again."
-    sleep(1)
-  end
-
-  def invalid_answer_play_again
-    puts "Answer invalid. Please type 'yes' or 'no'."
+  def invalid_answer(action)
+    puts "Invalid answer. #{action}."
     sleep(1)
   end
 end
@@ -163,7 +158,7 @@ class Player
       puts "Please type your name:"
       name = gets.chomp.strip
       break unless name.empty?
-      output("Name cannot be empty.")
+      invalid_answer("Name cannot be empty")
     end
     puts
     output("Thank you, #{name}. ")
@@ -366,7 +361,7 @@ class TwentyOneGame
       puts "How many rounds do you want the game to last?"
       answer = gets.chomp
       break if answer == answer.to_i.to_s && answer.to_i.positive?
-      puts "Invalid answer. Type a number."
+      invalid_answer("Type a number greater than 0")
       sleep(1)
     end
     self.max_score = answer.to_i
@@ -474,7 +469,7 @@ class TwentyOneGame
       puts "Do you want to (h)it or (s)tay?"
       answer = gets.chomp.downcase.strip
       break if (HIT + STAY).include?(answer)
-      invalid_answer
+      invalid_answer("Try again")
     end
     answer
   end
@@ -513,7 +508,7 @@ class TwentyOneGame
       puts "Would you like to play again? (yes/no)"
       answer = gets.downcase.chomp
       break if (yes + no).include?(answer)
-      invalid_answer_play_again
+      invalid_answer("Please type 'yes' or 'no'")
     end
     grand_reset if yes.include?(answer)
   end
