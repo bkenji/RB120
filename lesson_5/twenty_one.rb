@@ -23,6 +23,11 @@ module Displayable
     "The first to win #{max_score} round(s) is the grand winner.")
   end
 
+  def display_new_round
+    output("Starting new round...")
+    system("clear")
+  end
+
   def show_cards
     display_score
     player.show_hand
@@ -52,11 +57,7 @@ module Displayable
   end
 
   def display_grand_winner
-    if player.score > dealer.score
-      player_win_message
-    else
-      dealer_win_message
-    end
+    player.score > dealer.score ? player_win_message : dealer_win_message
   end
 
   def player_win_message
@@ -161,23 +162,6 @@ class Player
     @total = total
   end
 
-  def count_aces
-    hand.select(&:ace?).count
-  end
-
-  def include_ace?
-    count_aces != 0
-  end
-
-  def adjust_for_ace
-    @total = hand.map(&:value).sum
-    count_aces.times do
-      @total -= 10
-      break if @total <= 21
-    end
-    @total
-  end
-
   def reset
     self.hand = []
     total
@@ -196,6 +180,23 @@ class Player
     puts
     output("Thank you, #{name}. ")
     name
+  end
+
+  def count_aces
+    hand.select(&:ace?).count
+  end
+
+  def include_ace?
+    count_aces != 0
+  end
+
+  def adjust_for_ace
+    @total = hand.map(&:value).sum
+    count_aces.times do
+      @total -= 10
+      break if @total <= 21
+    end
+    @total
   end
 end
 
@@ -226,11 +227,6 @@ class Dealer < Player
     sleep(0.5)
   end
 
-  def visible_total(visible_cards)
-    visible_total = hand.first(visible_cards).map(&:value).sum
-    @visible_total = visible_total
-  end
-
   def reset
     super
     self.hide_hand = true
@@ -253,6 +249,11 @@ class Dealer < Player
     "\u2660" + "\e[31m\u2665\e[0m" + "\u2663"\
     " Mystery Card " + "\e[31m\u2666\e[0m" + "\u2660"\
     "\e[31m\u2665\e[0m" + "\u2663"
+  end
+
+  def visible_total(visible_cards)
+    visible_total = hand.first(visible_cards).map(&:value).sum
+    @visible_total = visible_total
   end
 end
 
@@ -387,8 +388,7 @@ class TwentyOneGame
   def main_game_loop
     loop do
       deck.deal(player, dealer)
-      output("Starting new round...")
-      system("clear")
+      display_new_round
       show_cards
       single_round_loop
       break if grand_winner?
