@@ -14,13 +14,13 @@ module Displayable
 
   def display_intro
     output("Whoever comes closest to 21 without going over (busting) wins.")
-    output("Let's get started!")
-    sleep(1)
+    puts "Let's get started."
+    sleep(1.5)
     system("clear")
   end
 
   def display_challenge
-    output("Your dealer is #{dealer.name}.")
+    output("Your dealer is #{dealer.name}, the #{dealer.title}.")
   end
 
   def show_cards
@@ -30,8 +30,7 @@ module Displayable
   end
 
   def display_turn(player)
-    puts
-    output("It's #{player.name}'s turn...")
+    output("It's #{player.name}'s turn.")
   end
 
   def invalid_answer
@@ -47,6 +46,11 @@ module Displayable
   def display_winner(winner, loser)
     output("#{winner.name} is the winner with #{winner.total} points "\
     "against #{loser.total}.")
+  end
+
+  def display_winner_bust(winner, loser)
+    output("#{loser.name} has busted with #{loser.total} points. "\
+    "#{winner.name} is the winner with #{winner.total} points.")
   end
 
   def display_score
@@ -100,10 +104,10 @@ class Player
   def show_hand
     output("#{name}'s hand:")
     puts hand
-    sleep(1.5)
+    sleep(1)
     output("#{name}'s total: #{total}")
     puts
-    sleep(1)
+    sleep(0.5)
   end
 
   def hit(deck)
@@ -115,7 +119,7 @@ class Player
     sleep(1)
    output("#{hand.last}")
    output("Updating hand...")
-   sleep(1)
+   sleep(0.5)
     system("clear")
   end
 
@@ -170,6 +174,7 @@ end
 
 class Dealer < Player
   attr_accessor :visible_cards
+
   def initialize
     super
     @hide_hand = true
@@ -189,10 +194,10 @@ class Dealer < Player
     output("#{name}'s visible hand:")
     hand.first(visible_cards).each {|card| puts card}
     mystery_card
-    sleep(1.5)
+    sleep(1)
     output("#{name}'s visible total: #{visible_total(visible_cards)}")
     puts
-    sleep(1)
+    sleep(0.5)
   end
 
   def visible_total(visible_cards)
@@ -203,6 +208,12 @@ class Dealer < Player
   def reset
     super
     self.hide_hand = true
+  end
+
+  def title
+    ["card byter",
+     "bit shuffler",
+     "quantum fingers"].sample
   end
 
   private
@@ -344,14 +355,12 @@ class TwentyOneGame
     loop do
       self.stay_number = 0
       player_turn
-      p "Number of stays in a row: #{stay_number}"
       end_game && break if player.bust? || stay_number >= 2
       dealer_turn
       end_game && break if dealer.bust? || stay_number >= 2
       sleep(2)
       system("clear")
     end
-    puts "This is the end."
   end
 
   def player_turn
@@ -367,10 +376,14 @@ class TwentyOneGame
   def stay(player)
     self.stay_number += 1
     puts "#{player.name} has chosen to stay."
-    player.hide_hand = false
-    sleep (1)
-    system("clear")
-    show_cards
+    if player.hide_hand == true
+      player.hide_hand = false
+      output("Revealing hand...")
+      system("clear")
+      show_cards
+    else
+      true
+    end
   end
 
   def dealer_turn
@@ -387,10 +400,10 @@ class TwentyOneGame
    def end_game
     if player.bust?
       dealer.score += 1
-      display_winner(dealer, player)
+      display_winner_bust(dealer, player)
     elsif dealer.bust?
       player.score += 1
-      display_winner(player, dealer)
+      display_winner_bust(player, dealer)
     else
       compare_totals
     end
