@@ -175,8 +175,6 @@ class Player
       break unless name.empty?
       invalid_answer("Name cannot be empty")
     end
-    puts
-    output("Thank you, #{name}. ")
     name
   end
 
@@ -373,6 +371,7 @@ class TwentyOneGame
   def intro
     rules = ["R", "RULES", "RULE"]
     puts
+    output("Thank you, #{player.name}. ")
     output("Type 'R' for the rules, or any other key to start.")
     input = gets.upcase.chomp
     rules.include?(input) ? display_rules : output("Very well.")
