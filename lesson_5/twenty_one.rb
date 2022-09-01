@@ -261,16 +261,12 @@ class CardDeck
   end
 
   def deal(player, dealer)
-    shuffle
+    cards.shuffle!
     (player.hand << cards.shift(2)).flatten!
     (dealer.hand << cards.shift(2)).flatten!
   end
 
   private
-
-  def shuffle
-    cards.shuffle!
-  end
 
   def initialize_card_deck
     Card::SUITS.each_with_object([]) do |suit, cards|
