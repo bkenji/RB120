@@ -28,12 +28,6 @@ module Displayable
     system("clear")
   end
 
-  def show_cards
-    display_score
-    player.show_hand
-    dealer.show_hand
-  end
-
   def display_turn(player)
     puts
     output("It's #{player.name}'s turn.")
@@ -421,6 +415,12 @@ class TwentyOneGame
     puts "#{player.name} has chosen to stay."
     sleep(0.5)
     reveal_hand(player)
+  end
+
+  def show_cards
+    display_score
+    player.show_hand
+    dealer.show_hand
   end
 
   def reveal_hand(player)
