@@ -11,16 +11,29 @@ module Displayable
     puts
   end
 
-  def display_intro
+  def display_rules
     puts
-    output("Whoever comes closest to 21 without busting wins.")
+    rules
+    sleep(1)
     puts
+    puts "Press any key to continue..."
+    gets.chomp
+    puts
+  end
+
+  def rules
+    output("RULES:")
+    output("\u2713 Whoever comes closest to 21 without busting wins.")
+    output("\u2713 You bust when your total goes over 21 points.")
+    output("\u2713 Ace value is dynamically calculated:")
+    output("  \u2713 11 points if total doesn't bust;")
+    output("  \u2713 1 point otherwise.")
   end
 
   def display_challenge
     puts
-    output("Your dealer is #{dealer.name}, the #{dealer.title}. "\
-    "The first to win #{max_score} round(s) is the grand winner.")
+    output("Your dealer is #{dealer.name}, the #{dealer.title}.")
+    output("The first to win #{max_score} round(s) is the grand winner.")
   end
 
   def display_new_round
@@ -64,7 +77,9 @@ module Displayable
   end
 
   def display_score
-    puts "::::: Twenty-One :::::      Score: #{player.name}: "\
+    puts "\u2666" + "\u2660" + "\u2665" + "\u2663"\
+      " Twenty-One " + "\u2666" + "\u2660"\
+      "\u2665" + "\u2663      Score: #{player.name}: "\
      "#{player.score} | #{dealer.name}: #{dealer.score}"
     puts "=========================================================="
     puts
@@ -336,7 +351,7 @@ class TwentyOneGame
   def play
     display_welcome
     initialize_players
-    display_intro
+    intro
     loop do
       number_of_rounds
       display_challenge
@@ -353,6 +368,14 @@ class TwentyOneGame
   def initialize_players
     @player = Player.new
     @dealer = Dealer.new
+  end
+
+  def intro
+    rules = ["R", "RULES", "RULE"]
+    puts
+    output("Type 'R' for the rules, or any other key to start.")
+    input = gets.upcase.chomp
+    rules.include?(input) ? display_rules : output("Very well.")
   end
 
   def number_of_rounds
