@@ -33,12 +33,6 @@ module Displayable
     output("It's #{player.name}'s turn.")
   end
 
-  def closing_round
-    puts
-    output("Wrapping up...")
-    system("clear")
-  end
-
   def display_winner(winner, loser)
     output("#{winner.name} is the winner with #{winner.total} points "\
     "against #{loser.total}.")
