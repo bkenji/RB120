@@ -1,81 +1,220 @@
 require "pry"
+module Displayable
+  def output(message)
+    animation(message)
+    puts
+    sleep(1)
+  end
 
-# Twenty-One is a card game consisting of a dealer and a player, where participants try to get as close to 21 as possible, without going over it. Whoever comes closest to 21 without going over it is the winner.
+  def display_welcome
+    system("clear")
+    output("Hello, and welcome to Twenty-One!")
+    puts
+  end
 
-# Module: Displayable
-# Responsibility: Formatting and Displaying messages
-# Behaviors:
-# Collaborators:
+  def display_intro
+    output("Whoever comes closest to 21 without going over (busting) wins.")
+    output("Let's get started!")
+    sleep(1)
+    system("clear")
+  end
 
-# Class: TwentyOneGame 
-# Responsibility: Game Orchestration
-# States: deck, player, dealer
-# Behaviors: win? show_cards, player_turn, dealer_turn
-# Collaborators: Player, Dealer, CardDeck
+  def display_challenge
+    output("Your dealer is #{dealer.name}.")
+  end
 
-# Class: Player
-# Responsibility:
-# States: Name, Score, Hand
-# Behaviors: Hit, Stay, Bust?
-# Collaborators:  Card
+  def show_cards
+    display_score
+    player.show_hand
+    dealer.show_hand
+  end
 
-# Class: Dealer < Player
-# Responsibility: 
-# States: (from Player)
-# Behaviors: Hit (Stay, Bust? from Player)
-# Collaborators: 
+  def display_turn(player)
+    puts
+    output("It's #{player.name}'s turn...")
+  end
 
-# Class: CardDeck
-# Responsibility: Keep track of all cards
-# States:
-# Behaviors:
-# Collaborators: Card
+  def invalid_answer
+    puts "Invalid answer. Try again."
+    sleep(1)
+  end
 
-# Class: Card
-# Responsibility: Define the value of individual cards
-# States: 
-# Behaviors:
-# Collaborators:
+  def invalid_answer_play_again
+    puts "Answer invalid. Please type 'yes' or 'no'."
+    sleep(1)
+  end
 
+  def display_winner(winner, loser)
+    output("#{winner.name} is the winner with #{winner.total} points "\
+    "against #{loser.total}.")
+  end
+
+  def display_score
+    puts"::::: Twenty-One :::::      Score: #{player.name}: "\
+     "#{player.score} | #{dealer.name}: #{dealer.score}"
+     puts "=========================================================="
+     puts
+    sleep(0.5)
+  end
+
+  def display_busted(player)
+    puts "#{player.name} has busted!"
+    sleep(1)
+  end
+
+
+
+  def display_goodbye
+    output("Thanks for playing. Goodbye!")
+  end
+
+  private
+
+  def animation(message)
+    chars = message.to_s.chars
+    chars.each_with_index do |chr, idx|
+      if chars[idx - 1] == "." || chars[idx - 1] == ":"
+        sleep(0.5)
+        print chr
+      else
+        print chr
+        sleep(0.045)
+      end
+    end
+  end
+end
 
 class Player
-  attr_reader :hand, :total
+  include Displayable 
+
+  attr_reader :name, :total
+  attr_accessor :score, :hand, :hide_hand
 
   def initialize
     @name = set_name
     @hand = []
     @total = total
+    @score = 0
   end 
+
+  def show_hand
+    output("#{name}'s hand:")
+    puts hand
+    sleep(1.5)
+    output("#{name}'s total: #{total}")
+    puts
+    sleep(1)
+  end
 
   def hit(deck)
     hand << deck.cards.shift
     @total = total
+    puts "#{name} chooses to hit!"
+    sleep(1)
+    puts "The following card is added to #{name}'s hand:"
+    sleep(1)
+   output("#{hand.last}")
+   output("Updating hand...")
+   sleep(1)
+    system("clear")
   end
 
   def bust?
-    # if total > 21, loses game
+    total > 21
   end
 
   def total
     total = hand.map(&:value).sum
+    total > 21 && include_ace? ? (return adjust_for_ace) : total
     @total = total
+  end
+
+  def count_aces
+    hand.select(&:ace?).count
+  end
+
+  def include_ace?
+    count_aces != 0
+  end
+
+  def adjust_for_ace
+    @total = hand.map(&:value).sum
+    count_aces.times do
+      @total -= 10
+      break if @total <= 21
+    end
+    @total
+  end
+
+  def reset
+    self.hand = []
+    total
   end
 
   private
 
   def set_name
+    name = nil
+    loop do
+      puts "Please type your name:"
+      name = gets.chomp.strip
+      break unless name.empty?
+      output("Name cannot be empty.")
+    end
+    puts
+    output("Thank you, #{name}. ")
+    puts
+    name
   end
 end
 
 class Dealer < Player
+  attr_accessor :visible_cards
+  def initialize
+    super
+    @hide_hand = true
+    @visible_cards = 1
+  end
 
-  def hit
-    #special hit rules for Dealer
+  def hit?
+    total < 17
+  end
+
+  def show_hand
+    hide_hand ? show_visible_hand : super
+  end
+
+  def show_visible_hand
+    self.visible_cards = hand.size - 1
+    output("#{name}'s visible hand:")
+    hand.first(visible_cards).each {|card| puts card}
+    mystery_card
+    sleep(1.5)
+    output("#{name}'s visible total: #{visible_total(visible_cards)}")
+    puts
+    sleep(1)
+  end
+
+  def visible_total(visible_cards)
+    visible_total = hand.first(visible_cards).map(&:value).sum
+    @visible_total = visible_total
+  end
+
+  def reset
+    super
+    self.hide_hand = true
   end
 
   private
 
   def set_name
+    ["Hal-9000", "Skynet", "Wall-E"].sample
+  end
+
+  def mystery_card
+    puts "\e[31m\u2666\e[0m"  + "\u2660" + + "\e[31m\u2665\e[0m" + "\u2663" + 
+    " Mystery Card " "\e[31m\u2666\e[0m"  + "\u2660" + 
+    "\e[31m\u2665\e[0m" + "\u2663" 
   end
 
 end
@@ -149,38 +288,47 @@ class Card
   end
 
   def to_s
-    "#{suit} #{rank} of #{@suit.capitalize} #{suit} with a value of #{value}"
+    "#{suit} #{rank} of #{@suit.capitalize} #{suit}"
+  end
+
+  def ace?
+    rank == "Ace"
   end
 
   def calculate_ace
-    11 # placeholder
+    11
   end
 end
 
 class TwentyOneGame
-  attr_accessor :deck
+  include Displayable 
+  HIT, STAY = ["hit", "h"], ["stay", "s"] 
+
+  attr_accessor :deck, :stay_number
   attr_reader :player, :dealer
 
   def initialize
     @deck = CardDeck.new
-    @player = Player.new
-    @dealer = Dealer.new
+    @stay_number = 0
   end
 
   def play
-    welcome
-    main_game_loop
-    goodbye
+    display_welcome
+    initialize_players
+    display_challenge
+    display_intro
+    loop do 
+      main_game_loop
+      break unless play_again?
+    end
+    display_goodbye
   end
 
   private
 
-  def welcome
-    puts "Welcome to Twenty-One!"
-  end
-
-  def goodbye
-    puts "Thank you for playing Twenty-One. Goodbye!"
+  def initialize_players
+    @player = Player.new
+    @dealer = Dealer.new
   end
 
   def main_game_loop
@@ -188,102 +336,125 @@ class TwentyOneGame
       deck.deal(player, dealer)
       show_cards
       single_round_loop
-      # compare_totals
-      # display_winner
-      # play_again?
+      break
     end
-  end
-
-  def show_cards
-    puts "Player's hand:"
-    puts player.hand
-    puts "Player's total: #{player.total}"
-    puts
-    puts "Dealer's hand:"
-    puts dealer.hand
-    puts "Dealer's total: #{dealer.total}"
   end
 
   def single_round_loop
     loop do
+      self.stay_number = 0
       player_turn
+      p "Number of stays in a row: #{stay_number}"
+      end_game && break if player.bust? || stay_number >= 2
       dealer_turn
-      break
+      end_game && break if dealer.bust? || stay_number >= 2
+      sleep(2)
+      system("clear")
     end
+    puts "This is the end."
   end
 
   def player_turn
-    hit, stay = ["hit", "h"], ["stay", "s"] 
-    puts "Player's turn..."
-    sleep(2)
+    display_turn(player)
     loop do
-      puts "Do you want to (h)it or (s)tay?"
-      answer = hit_or_stay?(hit, stay)
-      hit.include?(answer) ? player_hit : break
-      break if player.bust?
+      answer = hit_or_stay?(HIT, STAY)
+      stay(player) && break if STAY.include?(answer)
+      hit(player) if HIT.include?(answer)
+      display_busted(player) && break if player.bust?
     end
   end
 
+  def stay(player)
+    self.stay_number += 1
+    puts "#{player.name} has chosen to stay."
+    player.hide_hand = false
+    sleep (1)
+    system("clear")
+    show_cards
+  end
+
   def dealer_turn
-    puts "Dealer's turn now..."
-    sleep(2)
+    display_turn(dealer)
+    sleep(1)
     loop do
-      break
-      dealer_hit? # up to total >= 17
-      break if bust? || stay? 
+      hit(dealer) if dealer.hit?
+      display_busted(dealer) && break if dealer.bust?
+      stay(dealer) && break if !dealer.hit?
+      dealer.hide_hand = false
     end
-    bust? # player wins -> display_winner
-    stay? # player_turn
+  end
+
+   def end_game
+    if player.bust?
+      dealer.score += 1
+      display_winner(dealer, player)
+    elsif dealer.bust?
+      player.score += 1
+      display_winner(player, dealer)
+    else
+      compare_totals
+    end
+    sleep(0.1)
   end
 
   def hit_or_stay?(hit, stay)
     answer = nil
     loop do 
+      puts "Do you want to (h)it or (s)tay?"
       answer = gets.chomp.downcase.strip
-      break if  (hit + stay).include?(answer)
-      puts "Invalid answer. Try again."
+      break if  (HIT + STAY).include?(answer)
+      invalid_answer
     end
     answer
   end
 
-  def player_hit
+  def dealer_hit?
+    dealer.total < 17
+  end
+
+  def hit(player)
     player.hit(deck)
-    p "Player HIT"
-    sleep(2)
-    p player.hand
-    p player.total
-  end
-
-  def dealer_hit
-  end
-
-  def bust?
-  end
-
-  def stay?
-    p "Stay!!!!!!"
+    player.hide_hand = false
+    show_cards
   end
 
   def compare_totals
+    if player.total > dealer.total
+      winner(player, dealer)
+    elsif dealer.total > player.total
+      winner(dealer, player)
+    else
+      puts "It's a tie!"
+      sleep(1)
+    end
   end
 
-  def display_winner
+  def winner(winner, loser)
+    display_winner(winner, loser)
+    player.score += 1
   end
 
   def play_again?
+    answer = nil
+    yes = ["yes", "y"]
+    no = ["no", "n"]
+    loop do
+      puts "Would you like to play again? (yes/no)"
+      answer = gets.downcase.chomp
+      break if (yes + no).include?(answer)
+      invalid_answer_play_again
+    end
+    reset if yes.include?(answer)
+  end
+
+  def reset
+    output("Okay, let's play again.")
+    system("clear")
+    @deck = CardDeck.new
+    @stay_number = 0
+    player.reset
+    dealer.reset
   end
 end
 
  TwentyOneGame.new.play
-
-
-
-
-
-
-
-
-
-
-
-
