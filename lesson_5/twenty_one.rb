@@ -197,8 +197,6 @@ class Player
 end
 
 class Dealer < Player
-  attr_accessor :visible_cards
-
   def initialize
     super
     @hide_hand = true
@@ -211,16 +209,6 @@ class Dealer < Player
 
   def show_hand
     hide_hand ? show_visible_hand : super
-  end
-
-  def show_visible_hand
-    self.visible_cards = hand.size - 1
-    output("#{name}'s visible hand:")
-    hand.first(visible_cards).each { |card| puts card }
-    mystery_card
-    sleep(1)
-    output("Visible total: #{visible_total(visible_cards)}")
-    sleep(0.5)
   end
 
   def reset
@@ -236,8 +224,20 @@ class Dealer < Player
 
   private
 
+  attr_accessor :visible_cards
+
   def set_name
     ["Hal-9000", "Skynet", "Wall-E"].sample
+  end
+
+  def show_visible_hand
+    self.visible_cards = hand.size - 1
+    output("#{name}'s visible hand:")
+    hand.first(visible_cards).each { |card| puts card }
+    mystery_card
+    sleep(1)
+    output("Visible total: #{visible_total(visible_cards)}")
+    sleep(0.5)
   end
 
   def mystery_card
