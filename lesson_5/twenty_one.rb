@@ -1,4 +1,3 @@
-require "pry"
 module Displayable
   def output(message)
     animation(message)
@@ -13,14 +12,15 @@ module Displayable
   end
 
   def display_intro
-    output("Whoever comes closest to 21 without going over (busting) wins.")
-    puts "Let's get started."
-    sleep(1.5)
-    system("clear")
+    puts
+    output("Whoever comes closest to 21 without busting wins.")
+    puts
   end
 
   def display_challenge
-    output("Your dealer is #{dealer.name}, the #{dealer.title}.")
+    puts
+    output("Your dealer is #{dealer.name}, the #{dealer.title}. "\
+    "The first to win #{max_score} round(s) is the grand winner.")
   end
 
   def show_cards
@@ -30,17 +30,14 @@ module Displayable
   end
 
   def display_turn(player)
+    puts
     output("It's #{player.name}'s turn.")
   end
 
-  def invalid_answer
-    puts "Invalid answer. Try again."
-    sleep(1)
-  end
-
-  def invalid_answer_play_again
-    puts "Answer invalid. Please type 'yes' or 'no'."
-    sleep(1)
+  def closing_round
+    puts
+    output("Wrapping up...")
+    system("clear")
   end
 
   def display_winner(winner, loser)
@@ -49,30 +46,51 @@ module Displayable
   end
 
   def display_winner_bust(winner, loser)
+    puts
     output("#{loser.name} has busted with #{loser.total} points. "\
-    "#{winner.name} is the winner with #{winner.total} points.")
+    "#{winner.name} is the winner.")
+  end
+
+  def display_grand_winner
+    if player.score > dealer.score
+      player_win_message
+    else
+      dealer_win_message
+    end
+  end
+
+  def player_win_message
+    output("#{player.name} is the grand winner with a score "\
+       "of #{player.score} against #{dealer.score}.")
+    output("Congratulations. There's still hope for humankind.")
+    puts
+  end
+
+  def dealer_win_message
+    output("#{dealer.name} is the grand winner with a score "\
+      "of #{dealer.score} against #{player.score}.")
+    output("This victory can only be attributable to human error. "\
+      "Thanks for your cooperation.")
+    puts
   end
 
   def display_score
-    puts"::::: Twenty-One :::::      Score: #{player.name}: "\
+    puts "::::: Twenty-One :::::      Score: #{player.name}: "\
      "#{player.score} | #{dealer.name}: #{dealer.score}"
-     puts "=========================================================="
-     puts
+    puts "=========================================================="
+    puts
     sleep(0.5)
   end
 
   def display_busted(player)
+    puts
     puts "#{player.name} has busted!"
     sleep(1)
   end
 
-
-
   def display_goodbye
     output("Thanks for playing. Goodbye!")
   end
-
-  private
 
   def animation(message)
     chars = message.to_s.chars
@@ -86,12 +104,22 @@ module Displayable
       end
     end
   end
+
+  def invalid_answer
+    puts "Invalid answer. Try again."
+    sleep(1)
+  end
+
+  def invalid_answer_play_again
+    puts "Answer invalid. Please type 'yes' or 'no'."
+    sleep(1)
+  end
 end
 
 class Player
-  include Displayable 
+  include Displayable
 
-  attr_reader :name, :total
+  attr_reader :name
   attr_accessor :score, :hand, :hide_hand
 
   def initialize
@@ -99,13 +127,13 @@ class Player
     @hand = []
     @total = total
     @score = 0
-  end 
+  end
 
   def show_hand
     output("#{name}'s hand:")
     puts hand
     sleep(1)
-    output("#{name}'s total: #{total}")
+    output("Total: #{total}")
     puts
     sleep(0.5)
   end
@@ -117,9 +145,9 @@ class Player
     sleep(1)
     puts "The following card is added to #{name}'s hand:"
     sleep(1)
-   output("#{hand.last}")
-   output("Updating hand...")
-   sleep(0.5)
+    output(hand.last)
+    output("Updating hand...")
+    sleep(0.5)
     system("clear")
   end
 
@@ -167,7 +195,6 @@ class Player
     end
     puts
     output("Thank you, #{name}. ")
-    puts
     name
   end
 end
@@ -192,11 +219,10 @@ class Dealer < Player
   def show_visible_hand
     self.visible_cards = hand.size - 1
     output("#{name}'s visible hand:")
-    hand.first(visible_cards).each {|card| puts card}
+    hand.first(visible_cards).each { |card| puts card }
     mystery_card
     sleep(1)
-    output("#{name}'s visible total: #{visible_total(visible_cards)}")
-    puts
+    output("Visible total: #{visible_total(visible_cards)}")
     sleep(0.5)
   end
 
@@ -223,11 +249,11 @@ class Dealer < Player
   end
 
   def mystery_card
-    puts "\e[31m\u2666\e[0m"  + "\u2660" + + "\e[31m\u2665\e[0m" + "\u2663" + 
-    " Mystery Card " "\e[31m\u2666\e[0m"  + "\u2660" + 
-    "\e[31m\u2665\e[0m" + "\u2663" 
+    puts "\e[31m\u2666\e[0m"\
+    "\u2660" + "\e[31m\u2665\e[0m" + "\u2663"\
+    " Mystery Card " + "\e[31m\u2666\e[0m" + "\u2660"\
+    "\e[31m\u2665\e[0m" + "\u2663"
   end
-
 end
 
 class CardDeck
@@ -243,7 +269,7 @@ class CardDeck
     (dealer.hand << cards.shift(2)).flatten!
   end
 
-  private 
+  private
 
   def shuffle
     cards.shuffle!
@@ -259,9 +285,8 @@ class CardDeck
 end
 
 class Card
-
   SUITS = [:diamonds, :spades, :hearts, :clubs]
-  RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"] 
+  RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
 
   def initialize(suit, rank)
     @suit = suit
@@ -312,23 +337,25 @@ class Card
 end
 
 class TwentyOneGame
-  include Displayable 
-  HIT, STAY = ["hit", "h"], ["stay", "s"] 
+  include Displayable
+  HIT = ["hit", "h"]
+  STAY = ["stay", "s"]
 
-  attr_accessor :deck, :stay_number
-  attr_reader :player, :dealer
+  attr_reader :player, :dealer, :deck
 
   def initialize
     @deck = CardDeck.new
     @stay_number = 0
+    @max_score = max_score
   end
 
   def play
     display_welcome
     initialize_players
-    display_challenge
     display_intro
-    loop do 
+    loop do
+      number_of_rounds
+      display_challenge
       main_game_loop
       break unless play_again?
     end
@@ -337,17 +364,34 @@ class TwentyOneGame
 
   private
 
+  attr_accessor :stay_number, :max_score
+
   def initialize_players
     @player = Player.new
     @dealer = Dealer.new
   end
 
+  def number_of_rounds
+    answer = nil
+    loop do
+      puts "How many rounds do you want the game to last?"
+      answer = gets.chomp
+      break if answer == answer.to_i.to_s && answer.to_i.positive?
+      puts "Invalid answer. Type a number."
+      sleep(1)
+    end
+    self.max_score = answer.to_i
+    output("Thank you.")
+  end
+
   def main_game_loop
     loop do
       deck.deal(player, dealer)
+      output("Starting new round...")
+      system("clear")
       show_cards
       single_round_loop
-      break
+      break if grand_winner?
     end
   end
 
@@ -359,14 +403,13 @@ class TwentyOneGame
       dealer_turn
       end_game && break if dealer.bust? || stay_number >= 2
       sleep(2)
-      system("clear")
     end
   end
 
   def player_turn
     display_turn(player)
     loop do
-      answer = hit_or_stay?(HIT, STAY)
+      answer = hit_or_stay
       stay(player) && break if STAY.include?(answer)
       hit(player) if HIT.include?(answer)
       display_busted(player) && break if player.bust?
@@ -376,6 +419,11 @@ class TwentyOneGame
   def stay(player)
     self.stay_number += 1
     puts "#{player.name} has chosen to stay."
+    sleep(0.5)
+    reveal_hand(player)
+  end
+
+  def reveal_hand(player)
     if player.hide_hand == true
       player.hide_hand = false
       output("Revealing hand...")
@@ -388,7 +436,11 @@ class TwentyOneGame
 
   def dealer_turn
     display_turn(dealer)
-    sleep(1)
+    sleep(0.5)
+    dealer_hit_or_stay
+  end
+
+  def dealer_hit_or_stay
     loop do
       hit(dealer) if dealer.hit?
       display_busted(dealer) && break if dealer.bust?
@@ -397,7 +449,7 @@ class TwentyOneGame
     end
   end
 
-   def end_game
+  def end_game
     if player.bust?
       dealer.score += 1
       display_winner_bust(dealer, player)
@@ -407,15 +459,27 @@ class TwentyOneGame
     else
       compare_totals
     end
-    sleep(0.1)
+    reset
   end
 
-  def hit_or_stay?(hit, stay)
+  def grand_winner?
+    if player.score == max_score || dealer.score == max_score
+      system("clear")
+      display_score
+      display_grand_winner
+      grand_reset
+    else
+      false
+    end
+  end
+
+  def hit_or_stay
     answer = nil
-    loop do 
+    loop do
+      puts
       puts "Do you want to (h)it or (s)tay?"
       answer = gets.chomp.downcase.strip
-      break if  (HIT + STAY).include?(answer)
+      break if (HIT + STAY).include?(answer)
       invalid_answer
     end
     answer
@@ -444,7 +508,7 @@ class TwentyOneGame
 
   def winner(winner, loser)
     display_winner(winner, loser)
-    player.score += 1
+    winner.score += 1
   end
 
   def play_again?
@@ -457,17 +521,23 @@ class TwentyOneGame
       break if (yes + no).include?(answer)
       invalid_answer_play_again
     end
-    reset if yes.include?(answer)
+    grand_reset if yes.include?(answer)
   end
 
   def reset
-    output("Okay, let's play again.")
-    system("clear")
     @deck = CardDeck.new
     @stay_number = 0
     player.reset
     dealer.reset
   end
+
+  def grand_reset
+    sleep(1)
+    system("clear")
+    reset
+    player.score = 0
+    dealer.score = 0
+  end
 end
 
- TwentyOneGame.new.play
+TwentyOneGame.new.play
